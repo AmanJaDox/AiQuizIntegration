@@ -4,14 +4,18 @@ class LlamaChannel {
   static const MethodChannel _channel = MethodChannel('llama_channel');
 
   /// Method to send user input to the native code and receive the evaluated answer
-  static Future<String> evaluateAnswer(String userInput) async {
+  static Future<Map<String, dynamic>> evaluateAnswer(String userInput) async {
     try {
-      final String result = await _channel.invokeMethod('evaluate', userInput);
-      return result;
-    } on PlatformException catch (e) {
-      // Handle platform exceptions (e.g., errors from native code)
+      // Send user input to native code and receive JSON response
+      final result = await _channel.invokeMethod('evaluate', userInput);
+
+      // Parse JSON response into data structure
+      return jsonDecode(result) as Map<String, dynamic>;
+    } catch (e) {
+      // Handle errors
       print('Error evaluating answer: ${e.message}');
-      return null;
+      return {};
     }
   }
 }
+
